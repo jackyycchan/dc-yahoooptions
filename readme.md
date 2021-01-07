@@ -26,16 +26,16 @@ const QUOTES = ['TSLA']; // target quote
 
 ##  Destination
 	    dest/
-        ├── <option A>
-        ├── <option B>                   
+        ├── <quote A>
+        ├── <quote B>                   
         │   ├── <date>          
         │   ├── <date>         
         │   └── <date> 
         │          └── calls
-        │                 └── <contract>.json
-        │                 └── <contract>.json
+        │                 └── <contract number>.json
+        │                 └── <contract number>.json
         │          └── puts
-        │                 └── <contract>.json
-        │                 └── <contract>.json
+        │                 └── <contract number>.json
+        │                 └── <contract number>.json
         └── ...
 

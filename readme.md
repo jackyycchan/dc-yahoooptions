@@ -1,5 +1,5 @@
 # Yahoo Options
-## Prerequestie
+## Prerequisite
 * Node js
 ## Install
 * 1. nevigate to project folder
@@ -7,4 +7,10 @@
 <pre>
 > npm install
 </pre>
+
+## Run
+<pre>
+> node index.js
+</pre>
+
 

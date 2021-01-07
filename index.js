@@ -1,25 +1,24 @@
+// import
 const https = require('https');
 const moment = require('moment');
 const aws = require('aws-sdk');
 const fs = require('fs');
 const s3 = new aws.S3();
 
-const placeholderQuote = '%%qoute%%';
-const placeholderDate = '%%date%%';
-const constPath = '/v7/finance/options/' + placeholderQuote + '?formatted=true&crumb=i1Hpnl6KWkB&lang=en-US&region=US&date=' + placeholderDate + '&corsDomain=finance.yahoo.com';
-const options = {
+// const for http
+const PLACEHOLDER_QUOTE = '%%qoute%%';
+const PLACEHOLDER_DATE = '%%date%%';
+const PATH = '/v7/finance/options/' + PLACEHOLDER_QUOTE + '?formatted=true&crumb=i1Hpnl6KWkB&lang=en-US&region=US&date=' + PLACEHOLDER_DATE + '&corsDomain=finance.yahoo.com';
+const HTTP_OPTIONS = {
   hostname: 'query1.finance.yahoo.com',
   port: 443,
   path: '',
   
 };
-const maxWeeks = 7;
-const QUOTES = ['TSLA'];
 
-const response = {
-  statusCode: 200,
-  body: JSON.stringify('Hello from Lambda!'),
-};
+// ---- config start ---- //
+const MAX_WEEK = 7;
+const QUOTES = ['TSLA'];
 
 // store location
 const IS_LOCAL = true;
@@ -29,7 +28,8 @@ const DIR_PUTS = 'puts';
 const DEST_DIR = 'dest';
 
 // s3
-const DESR_BUSKET = 'yahoofinanceoptions';
+const DEST_BUSKET = 'yahoofinanceoptions';
+// ---- config end ---- //
 
 var putToLocalDir = function(json, fileName) {
     fs.writeFile(fileName, json, (err) => {
@@ -43,7 +43,7 @@ var putToLocalDir = function(json, fileName) {
 var putToS3 = function(json, fileName) {
     try {
         const params = {
-            Bucket: DESR_BUSKET,
+            Bucket: DEST_BUSKET,
             Key: fileName,
             Body: json
         };
@@ -57,11 +57,13 @@ var putToS3 = function(json, fileName) {
 };
 
 var putFile = function(option, destName, isCalls) {
-    //// put to local
-    putToLocalDir(JSON.stringify(option), getFileName(option, destName, isCalls));
-
-    //// put to s3
-    // putToS3(JSON.stringify(option), getFileName(option, destName, isCalls);
+    if (IS_LOCAL) {
+        /// put to local
+        putToLocalDir(JSON.stringify(option), getFileName(option, destName, isCalls));
+    } else {
+        //// put to s3
+        putToS3(JSON.stringify(option), getFileName(option, destName, isCalls));
+    }
 };
 
 /*
@@ -77,7 +79,7 @@ var getFileName = function(option, destName, isCalls) {
         fileName += DIR_PUTS + '/';
     }
 
-    if (option != '') {
+    if (option !== '') {
         fileName += option.contractSymbol + '.json';
     } else {
         fileName += 'empty.json';
@@ -119,11 +121,11 @@ var checkExistence = function(destName) {
 };
 
 var httpsGet = function(quote, targetFriday, destName) {
-    var url = constPath.replace(placeholderQuote, quote).replace(placeholderDate, targetFriday.unix());
-    var targetOptions = options;
-    targetOptions.path = url;
+    var url = PATH.replace(PLACEHOLDER_QUOTE, quote).replace(PLACEHOLDER_DATE, targetFriday.unix());
+    var httpOptions = HTTP_OPTIONS;
+    httpOptions.path = url;
     
-    https.get(targetOptions, (res) => {
+    https.get(httpOptions, (res) => {
         var jsonString = '';
         
         res.on('data', (d) => {
@@ -161,8 +163,9 @@ var httpsGet = function(quote, targetFriday, destName) {
     });
 };
 
+//// loop though quotes array
 QUOTES.forEach(quote => {
-    for(var i = 0; i < maxWeeks; i++) {
+    for(var i = 0; i < MAX_WEEK; i++) {
       var targetFriday = moment.utc().day(5 + (i * 7)).hour(0).minute(0).second(0).millisecond(0);
 
       httpsGet(quote, targetFriday, getDestName(quote, targetFriday));

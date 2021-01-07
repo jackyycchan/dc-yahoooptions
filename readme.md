@@ -1,16 +1,41 @@
 # Yahoo Options
+## Functionality
+- To download options calls and puts data from query1.finance.yahoo.com
+
 ## Prerequisite
-* Node js
+- Node js
 ## Install
-* 1. nevigate to project folder
-* 2. install package
-<pre>
+- navigate to project folder
+- install package
 > npm install
+
+## Config in index.js
+<pre>
+const MAX_WEEK = 7;
+const QUOTES = ['TSLA']; // target quote
 </pre>
 
 ## Run
-<pre>
 > node index.js
-</pre>
 
+## Data
+- https://query1.finance.yahoo.com/v7/finance/options/TSLA?formatted=true&crumb=i1Hpnl6KWkB&lang=en-US&region=UScorsDomain=finance.yahoo.com
+- only calls and puts data are stored
+- stored in JSON format
+- stored contract by contract
+
+##  Destination
+	    dest/
+        ├── <option A>
+        ├── <option B>                   
+        │   ├── <date>          
+        │   ├── <date>         
+        │   └── <date> 
+        │          └── calls
+        │                 └── <contract>.json
+        │                 └── <contract>.json
+        │          └── puts
+        │                 └── <contract>.json
+        │                 └── <contract>.json
+        └── ...
 
